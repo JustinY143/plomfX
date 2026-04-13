@@ -1,0 +1,47 @@
+﻿<Window x:Class="plomfX.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:plomfX.Views.UserControls"
+        Title="plomfX Crosshair Overlay"
+        Height="450" Width="800"
+        MinHeight="350" MinWidth="700"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource PrimaryBackgroundBrush}"
+        ResizeMode="CanResizeWithGrip">
+    
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        
+        <!-- Theme selector row -->
+        <StackPanel Grid.Row="0" Grid.ColumnSpan="2" Orientation="Horizontal" 
+                    HorizontalAlignment="Right" Margin="0,0,0,5">
+            <TextBlock Text="Theme:" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center" Margin="0,0,5,0"/>
+            <ComboBox x:Name="ThemeComboBox" Width="120" 
+                      DisplayMemberPath="Name"
+                      SelectionChanged="ThemeComboBox_SelectionChanged"/>
+        </StackPanel>
+        
+        <!-- PreviewControl row 1 -->
+        <local:PreviewControl x:Name="PreviewControl" Grid.Row="1" Grid.Column="0" Margin="0,0,5,5"/>
+
+        <!-- Browser and Settings share row 2, column 0 -->
+        <Grid Grid.Row="2" Grid.Column="0" Margin="0,5,5,0">
+            <local:CrosshairBrowserControl x:Name="CrosshairBrowserControl"/>
+            <local:CrosshairSettingsControl x:Name="SettingsPopup" Visibility="Collapsed"/>
+        </Grid>
+        
+        <!-- ActionMenuControl spans rows 1-2 -->
+        <local:ActionMenuControl x:Name="ActionMenuControl" 
+                                 Grid.Row="1" Grid.RowSpan="2" Grid.Column="1"
+                                 Width="180"
+                                 Margin="5,0,0,0"/>
+    </Grid>
+</Window>

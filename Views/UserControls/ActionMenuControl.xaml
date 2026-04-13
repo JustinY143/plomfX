@@ -1,0 +1,99 @@
+<UserControl x:Class="plomfX.Views.UserControls.ActionMenuControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="400" d:DesignWidth="160">
+    
+    <Border Background="{DynamicResource PrimaryBackgroundBrush}" 
+            BorderBrush="{DynamicResource PrimaryBorderBrush}" 
+            BorderThickness="1" 
+            CornerRadius="4"
+            Margin="5"
+            Padding="10">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            
+            <TextBlock Text="ACTIONS" 
+                       Foreground="{DynamicResource SecondaryAccentBrush}"
+                       FontSize="10" 
+                       Margin="0,0,0,10"
+                       FontWeight="SemiBold"/>
+            
+            <!-- Vertical button stack -->
+            <StackPanel Grid.Row="1" VerticalAlignment="Top">
+                <Button x:Name="SettingsButton" 
+                        Content="⚙ Settings" 
+                        Margin="0,0,0,8" 
+                        Padding="10,6"
+                        Style="{StaticResource ActionButtonStyle}"/>
+                
+                <Button x:Name="CrosshairSettingsButton" 
+                        Content="✚ Crosshair Settings" 
+                        Margin="0,0,0,8" 
+                        Padding="10,6"
+                        Style="{StaticResource ActionButtonStyle}"/>
+                
+                <Button x:Name="SetDefaultButton" 
+                        Content="💾 Save Crosshair" 
+                        Margin="0,0,0,20" 
+                        Padding="10,6"
+                        Style="{StaticResource ActionButtonStyle}"/>
+            </StackPanel>
+            
+            <!-- Large Enable/Disable toggle at bottom -->
+            <ToggleButton x:Name="EnableToggleButton" 
+                        Grid.Row="2"
+                        IsChecked="False"
+                        Padding="10,12"
+                        Foreground="White"
+                        BorderThickness="0"
+                        FontWeight="Bold"
+                        Cursor="Hand"
+                        HorizontalContentAlignment="Center">
+                <ToggleButton.Style>
+                    <Style TargetType="ToggleButton">
+                        <Setter Property="Background" Value="{DynamicResource SecondaryAccentBrush}"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ToggleButton">
+                                    <Border x:Name="border" 
+                                            Background="{TemplateBinding Background}"
+                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                            CornerRadius="3"
+                                            Padding="{TemplateBinding Padding}">
+                                        <ContentPresenter HorizontalAlignment="Center" 
+                                                        VerticalAlignment="Center"/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsChecked" Value="True">
+                                            <Setter TargetName="border" Property="Background" Value="{DynamicResource SecondaryHoverBrush}"/>
+                                        </Trigger>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="border" Property="Opacity" Value="0.8"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <!-- Set Content based on IsChecked -->
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter Property="Content" Value="ENABLED"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="False">
+                                <Setter Property="Content" Value="DISABLED"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </ToggleButton.Style>
+            </ToggleButton>
+        </Grid>
+    </Border>
+</UserControl>
