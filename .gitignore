@@ -1,3 +1,20 @@
-/bin/
-/obj/
-/.vs/
+# Build results
+[Dd]ebug/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Aa]rm/
+[Aa]rm64/
+[Bb]in/
+[Oo]bj/
+[Pp]ublish/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.cache
+
+# User settings (we create this at runtime)
+settings.json
