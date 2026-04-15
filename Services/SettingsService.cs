@@ -16,6 +16,8 @@ namespace plomfX.Services
         public WpfColor DefaultTint { get; set; } = Colors.White;
         public int SelectedMonitorIndex { get; set; } = 0; // default to primary monitor
         public bool ShowDebugButton = false;
+        public List<string> CustomColors { get; set; } = new List<string>();
+
     }
 
     public static class SettingsService
