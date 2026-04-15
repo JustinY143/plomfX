@@ -27,12 +27,17 @@ namespace plomfX.Views
 
         public MainWindow()
         {
+            this.Closed += (s, e) => System.Windows.Application.Current.Shutdown();
             InitializeComponent();
             InitializeTrayIcon();
             _settings = SettingsService.Load();
+            ActionMenuControl.SetDebugButtonVisibility(_settings.ShowDebugButton);
+            // Create and configure the overlay window
             _overlayWindow = new OverlayWindow();
-            PositionOverlayOnMonitor(_settings.SelectedMonitorIndex);
-            this.Closed += (s, e) => System.Windows.Application.Current.Shutdown();
+            _overlayWindow.Loaded += (s, e) =>
+            {
+                PositionOverlayOnMonitor(_settings.SelectedMonitorIndex);
+            };
 
             //Load themes
             var themes = ThemeManager.LoadThemes();

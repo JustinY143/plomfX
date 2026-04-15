@@ -30,5 +30,10 @@ namespace plomfX.Views.UserControls
             get => EnableToggleButton.IsChecked ?? false;
             set => EnableToggleButton.IsChecked = value;
         }
+
+        public void SetDebugButtonVisibility(bool visible)
+        {
+            DebugMemoryButton.Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
+        }
     }
 }

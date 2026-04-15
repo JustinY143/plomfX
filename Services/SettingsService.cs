@@ -15,6 +15,7 @@ namespace plomfX.Services
         public double DefaultOpacity { get; set; } = 1.0;
         public WpfColor DefaultTint { get; set; } = Colors.White;
         public int SelectedMonitorIndex { get; set; } = 0; // default to primary monitor
+        public bool ShowDebugButton = false;
     }
 
     public static class SettingsService
