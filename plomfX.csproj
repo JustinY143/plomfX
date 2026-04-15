@@ -10,16 +10,4 @@
     <OutputType>WinExe</OutputType>
     <ApplicationIcon>AppIcon.ico</ApplicationIcon>
   </PropertyGroup>
-
-  <ItemGroup>
-  <Content Include="Crosshairs\**\*.*">
-    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-  </Content>
-  <None Update="AppIcon.ico">
-    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-  </None>
-  </ItemGroup>
-
 </Project>
