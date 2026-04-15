@@ -124,7 +124,7 @@ namespace plomfX.Views.UserControls
                 HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
                 VerticalAlignment = System.Windows.VerticalAlignment.Center
             };
-            RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.LowQuality);
+            RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.HighQuality);
 
             var button = new System.Windows.Controls.Button
              {
@@ -139,6 +139,12 @@ namespace plomfX.Views.UserControls
                 Content = image,
                 Tag = imagePath
             };
+
+            // Apply the global action button style for consistent hover effects
+            var style = FindResource("ActionButtonStyle") as Style;
+            if (style != null)
+                button.Style = style;
+
             button.Click += (s, e) => CrosshairSelected?.Invoke(imagePath);
             return button;
         }
