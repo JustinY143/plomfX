@@ -11,8 +11,19 @@
             CornerRadius="4"
             Padding="10">
         <StackPanel>
-            <TextBlock Text="CROSSHAIR SETTINGS" Foreground="{DynamicResource SecondaryAccentBrush}" FontWeight="SemiBold" Margin="0,0,0,10"/>
-            
+            <Grid Margin="0,0,0,10">
+                <TextBlock Text="CROSSHAIR SETTINGS" 
+                           Foreground="{DynamicResource SecondaryAccentBrush}" 
+                           FontWeight="SemiBold" 
+                           HorizontalAlignment="Left"
+                           VerticalAlignment="Center"/>
+                <Button x:Name="BackButton" 
+                        Content="← Back" 
+                        Style="{StaticResource ActionButtonStyle}" 
+                        HorizontalAlignment="Right" 
+                        Padding="8,4"
+                        Click="BackButton_Click"/>
+            </Grid>
             <!-- Scale Slider -->
             <StackPanel Margin="0,0,0,10">
                 <StackPanel Orientation="Horizontal">

@@ -71,6 +71,7 @@ namespace plomfX.Views
             SettingsPopup.ScaleChanged += OnScaleChanged;
             SettingsPopup.OpacityChanged += OnOpacityChanged;
             SettingsPopup.TintChanged += OnTintChanged;
+            SettingsPopup.BackRequested += OnBackRequested;
 
             // Load default crosshair if saved
             if (!string.IsNullOrEmpty(_settings.DefaultCrosshairPath) && File.Exists(_settings.DefaultCrosshairPath))
@@ -186,6 +187,12 @@ namespace plomfX.Views
         {
             var settings = SettingsService.Load();
             PositionOverlayOnMonitor(settings.SelectedMonitorIndex);
+        }
+
+        private void OnBackRequested()
+        {
+            SettingsPopup.Visibility = Visibility.Collapsed;
+            CrosshairBrowserControl.Visibility = Visibility.Visible;
         }
 
         private void PositionOverlayOnMonitor(int monitorIndex)

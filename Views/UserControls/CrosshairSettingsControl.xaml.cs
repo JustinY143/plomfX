@@ -10,6 +10,7 @@ namespace plomfX.Views.UserControls
         public event Action<double>? OpacityChanged;
         public event Action<WpfColor>? TintChanged;
         private WpfColor _currentTint = Colors.White;
+        public event Action? BackRequested;
 
         public CrosshairSettingsControl()
         {
@@ -38,7 +39,7 @@ namespace plomfX.Views.UserControls
                     TintChanged?.Invoke(_currentTint);
                 }
             };
-            
+
             ResetColorButton.Click += (s, e) =>
             {
                 _currentTint = Colors.White;
@@ -54,6 +55,11 @@ namespace plomfX.Views.UserControls
             ColorPreview.Fill = new SolidColorBrush(tint);
             ScaleValueText.Text = $"{scale:P0}";
             OpacityValueText.Text = $"{opacity:P0}";
+        }
+
+        private void BackButton_Click(object sender, RoutedEventArgs e)
+        {
+            BackRequested?.Invoke();
         }
     }
 }
