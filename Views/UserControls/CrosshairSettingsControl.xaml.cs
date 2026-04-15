@@ -38,6 +38,13 @@ namespace plomfX.Views.UserControls
                     TintChanged?.Invoke(_currentTint);
                 }
             };
+            
+            ResetColorButton.Click += (s, e) =>
+            {
+                _currentTint = Colors.White;
+                ColorPreview.Fill = new SolidColorBrush(Colors.White);
+                TintChanged?.Invoke(Colors.White);
+            };
         }
         public void SetInitialValues(double scale, double opacity, WpfColor tint)
         {

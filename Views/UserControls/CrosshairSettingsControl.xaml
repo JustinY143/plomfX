@@ -35,6 +35,8 @@
             <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                 <TextBlock Text="Tint:" Foreground="White" Width="60" VerticalAlignment="Center"/>
                 <Button x:Name="PickColorButton" Content="Choose Color..." Padding="8,4" Style="{StaticResource ActionButtonStyle}"/>
+                <Button x:Name="ResetColorButton" Content="↺" Width="28" Height="28" Margin="5,0,0,0" 
+                    Style="{StaticResource ActionButtonStyle}" ToolTip="Reset to White"/>
                 <Rectangle x:Name="ColorPreview" Width="20" Height="20" Fill="White" Margin="10,0,0,0"/>
             </StackPanel>
         </StackPanel>

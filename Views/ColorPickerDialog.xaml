@@ -29,7 +29,7 @@
             <TextBlock Text="R:" Foreground="{DynamicResource SecondaryForegroundBrush}" 
                        VerticalAlignment="Center"/>
             <Slider x:Name="RedSlider" Grid.Column="1" Minimum="0" Maximum="255" 
-                    Value="255" TickFrequency="1" IsSnapToTickEnabled="True"
+                    Value="255" TickFrequency="1" IsMoveToPointEnabled="True"
                     Margin="10,0"/>
             <TextBox x:Name="RedTextBox" Grid.Column="2" 
                      Text="255" TextAlignment="Right"
@@ -48,7 +48,7 @@
             <TextBlock Text="G:" Foreground="{DynamicResource SecondaryForegroundBrush}" 
                        VerticalAlignment="Center"/>
             <Slider x:Name="GreenSlider" Grid.Column="1" Minimum="0" Maximum="255" 
-                    Value="255" TickFrequency="1" IsSnapToTickEnabled="True"
+                    Value="255" TickFrequency="1" IsMoveToPointEnabled="True"
                     Margin="10,0"/>
             <TextBox x:Name="GreenTextBox" Grid.Column="2" 
                      Text="255" TextAlignment="Right"
@@ -67,7 +67,7 @@
             <TextBlock Text="B:" Foreground="{DynamicResource SecondaryForegroundBrush}" 
                        VerticalAlignment="Center"/>
             <Slider x:Name="BlueSlider" Grid.Column="1" Minimum="0" Maximum="255" 
-                    Value="255" TickFrequency="1" IsSnapToTickEnabled="True"
+                    Value="255" TickFrequency="1" IsMoveToPointEnabled="True"
                     Margin="10,0"/>
             <TextBox x:Name="BlueTextBox" Grid.Column="2" 
                      Text="255" TextAlignment="Right"

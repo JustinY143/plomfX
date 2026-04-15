@@ -283,6 +283,9 @@ namespace plomfX.Views
             _overlayWindow.SetScale(_currentScale);
             _overlayWindow.SetOpacity(_currentOpacity);
             _overlayWindow.SetColorTint(_currentTint);
+            PreviewControl.SetScale(_currentScale);
+            PreviewControl.SetOpacity(_currentOpacity);
+            PreviewControl.SetColorTint(_currentTint);
         }
 
 
