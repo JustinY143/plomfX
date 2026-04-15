@@ -80,9 +80,10 @@ namespace plomfX.Services
 
                 Dark: 30,30,30 : 62,62,66
                 Light: 240,240,240 : 200,200,200
-                Blue: 25,30,45 : 0,122,204
+                Tako: 87, 70, 102 : 233, 151, 119
                 Red: 45,25,25 : 204,0,0
                 Green: 25,45,30 : 0,204,102
+                Blue: 25,30,45 : 0,122,204
                 ";
             File.WriteAllText(path, defaultContent);
         }
