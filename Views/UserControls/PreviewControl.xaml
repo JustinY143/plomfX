@@ -27,7 +27,7 @@
             <!-- Crosshair preview image centered -->
             <Image x:Name="PreviewImage"
                     Grid.Row="1"
-                    Stretch="Uniform"
+                    Stretch="None"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
                     Margin="5"

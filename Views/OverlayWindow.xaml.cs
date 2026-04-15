@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Windows;
-using System.Windows.Media;
 using System.Windows.Interop;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using WpfColor = System.Windows.Media.Color;
 
@@ -10,7 +12,6 @@ namespace plomfX.Views
 {
     public partial class OverlayWindow : Window
     {
-        // Win32 API constants for extended window styles
         private const int GWL_EXSTYLE = -20;
         private const int WS_EX_LAYERED = 0x00080000;
         private const int WS_EX_TRANSPARENT = 0x00000020;
@@ -30,6 +31,11 @@ namespace plomfX.Views
         private const uint SWP_NOSIZE = 0x0001;
         private const uint SWP_SHOWWINDOW = 0x0040;
 
+        private static readonly Dictionary<(string path, WpfColor tint), BitmapSource> _tintedCache = new();
+
+        private BitmapSource? _originalBitmap;
+        private string? _currentImagePath;
+
         public OverlayWindow()
         {
             InitializeComponent();
@@ -38,28 +44,19 @@ namespace plomfX.Views
         protected override void OnSourceInitialized(EventArgs e)
         {
             base.OnSourceInitialized(e);
-
             var helper = new WindowInteropHelper(this);
             var hwnd = helper.Handle;
-
-            // Get current extended style
             int exStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
-
-            // Add WS_EX_LAYERED and WS_EX_TRANSPARENT to make the window click-through
             exStyle |= WS_EX_LAYERED | WS_EX_TRANSPARENT;
             SetWindowLong(hwnd, GWL_EXSTYLE, exStyle);
-
-            // Ensure window remains topmost after style change
-            SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0,
-                SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+            SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
         }
 
-        /// <summary>
-        /// Clears the crosshair (hides overlay content).
-        /// </summary>
-        public void ClearCrosshair()
+        public void SetOriginalBitmap(BitmapSource bitmap, string imagePath)
         {
-            CrosshairImage.Source = null;
+            _originalBitmap = bitmap;
+            _currentImagePath = imagePath;
+            CrosshairImage.Source = bitmap;
         }
 
         public void SetScale(double scaleFactor)
@@ -75,14 +72,23 @@ namespace plomfX.Views
 
         public void SetColorTint(WpfColor tintColor)
         {
-            if (_originalBitmap == null) return;
-                var tinted = ApplyColorTint(_originalBitmap, tintColor);
-                CrosshairImage.Source = tinted;
+            if (_originalBitmap == null || string.IsNullOrEmpty(_currentImagePath)) return;
+
+            var key = (_currentImagePath, tintColor);
+            if (!_tintedCache.TryGetValue(key, out var tinted))
+            {
+                tinted = ApplyColorTint(_originalBitmap, tintColor);
+                if (tinted != null)
+                {
+                    tinted.Freeze();
+                    _tintedCache[key] = tinted;
+                }
+            }
+            CrosshairImage.Source = tinted;
         }
 
         private BitmapSource ApplyColorTint(BitmapSource source, WpfColor tint)
         {
-            // Convert to Bgra32 if needed
             var formatConverted = new FormatConvertedBitmap(source, PixelFormats.Bgra32, null, 0);
             int width = formatConverted.PixelWidth;
             int height = formatConverted.PixelHeight;
@@ -96,16 +102,9 @@ namespace plomfX.Views
 
             for (int i = 0; i < pixels.Length; i += 4)
             {
-                // BGRA order
-                byte b = pixels[i];
-                byte g = pixels[i + 1];
-                byte r = pixels[i + 2];
-                // byte a = pixels[i + 3];
-
-                pixels[i] = (byte)(b * bFactor);
-                pixels[i + 1] = (byte)(g * gFactor);
-                pixels[i + 2] = (byte)(r * rFactor);
-                // alpha unchanged
+                pixels[i] = (byte)(pixels[i] * bFactor);
+                pixels[i + 1] = (byte)(pixels[i + 1] * gFactor);
+                pixels[i + 2] = (byte)(pixels[i + 2] * rFactor);
             }
 
             var result = new WriteableBitmap(width, height, source.DpiX, source.DpiY, PixelFormats.Bgra32, null);
@@ -113,25 +112,28 @@ namespace plomfX.Views
             return result;
         }
 
-        // Overload SetCrosshairImage to store original bitmap
-        private BitmapSource? _originalBitmap;
+        public static void ClearTintCache()
+        {
+            _tintedCache.Clear();
+        }
 
+        // Keep SetCrosshairImage for backward compatibility if needed, but it's now obsolete
         public void SetCrosshairImage(string imagePath)
         {
-                try
-                {
-                    var bitmap = new BitmapImage();
-                    bitmap.BeginInit();
-                    bitmap.UriSource = new Uri(imagePath, UriKind.RelativeOrAbsolute);
-                    bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                    bitmap.EndInit();
-                    _originalBitmap = bitmap;
-                    CrosshairImage.Source = bitmap;
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine($"Failed to load crosshair: {ex.Message}");
-                }
+            try
+            {
+                var bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.UriSource = new Uri(imagePath, UriKind.RelativeOrAbsolute);
+                bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                bitmap.EndInit();
+                bitmap.Freeze();
+                SetOriginalBitmap(bitmap, imagePath);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Failed to load crosshair: {ex.Message}");
+            }
         }
     }
 }

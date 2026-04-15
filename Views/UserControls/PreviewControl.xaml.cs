@@ -1,3 +1,4 @@
+using System;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -6,13 +7,21 @@ using WpfColor = System.Windows.Media.Color;
 namespace plomfX.Views.UserControls
 {
     public partial class PreviewControl : System.Windows.Controls.UserControl
-    { 
+    {
         private BitmapSource? _originalPreviewBitmap;
+
         public PreviewControl()
         {
             InitializeComponent();
         }
 
+        public void SetOriginalBitmap(BitmapSource bitmap)
+        {
+            _originalPreviewBitmap = bitmap;
+            PreviewImage.Source = bitmap;
+        }
+
+        // Keep for compatibility
         public void SetPreviewImage(string imagePath)
         {
             try
@@ -22,14 +31,15 @@ namespace plomfX.Views.UserControls
                 bitmap.UriSource = new Uri(imagePath, UriKind.RelativeOrAbsolute);
                 bitmap.CacheOption = BitmapCacheOption.OnLoad;
                 bitmap.EndInit();
-                _originalPreviewBitmap = bitmap;
-                PreviewImage.Source = bitmap;
+                bitmap.Freeze();
+                SetOriginalBitmap(bitmap);
             }
             catch
             {
                 PreviewImage.Source = null;
             }
         }
+
         public void SetOpacity(double opacity)
         {
             PreviewImage.Opacity = opacity;
@@ -38,8 +48,19 @@ namespace plomfX.Views.UserControls
         public void SetColorTint(WpfColor tint)
         {
             if (_originalPreviewBitmap == null) return;
+
+            // Clear old tinted image
+            if (PreviewImage.Source is BitmapSource oldTinted && oldTinted != _originalPreviewBitmap)
+            {
+                PreviewImage.Source = null;
+            }
+
             var tinted = ApplyColorTint(_originalPreviewBitmap, tint);
-            PreviewImage.Source = tinted;
+            if (tinted != null)
+            {
+                tinted.Freeze();
+                PreviewImage.Source = tinted;
+            }
         }
 
         public void SetScale(double scale)
@@ -50,7 +71,6 @@ namespace plomfX.Views.UserControls
 
         private BitmapSource ApplyColorTint(BitmapSource source, WpfColor tint)
         {
-            // Convert to Bgra32 if needed
             var formatConverted = new FormatConvertedBitmap(source, PixelFormats.Bgra32, null, 0);
             int width = formatConverted.PixelWidth;
             int height = formatConverted.PixelHeight;
@@ -64,16 +84,9 @@ namespace plomfX.Views.UserControls
 
             for (int i = 0; i < pixels.Length; i += 4)
             {
-                // BGRA order
-                byte b = pixels[i];
-                byte g = pixels[i + 1];
-                byte r = pixels[i + 2];
-                // byte a = pixels[i + 3];
-
-                pixels[i] = (byte)(b * bFactor);
-                pixels[i + 1] = (byte)(g * gFactor);
-                pixels[i + 2] = (byte)(r * rFactor);
-                // alpha unchanged
+                pixels[i] = (byte)(pixels[i] * bFactor);
+                pixels[i + 1] = (byte)(pixels[i + 1] * gFactor);
+                pixels[i + 2] = (byte)(pixels[i + 2] * rFactor);
             }
 
             var result = new WriteableBitmap(width, height, source.DpiX, source.DpiY, PixelFormats.Bgra32, null);

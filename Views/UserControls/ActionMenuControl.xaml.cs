@@ -11,6 +11,7 @@ namespace plomfX.Views.UserControls
         public event RoutedEventHandler CrosshairSettingsClick = delegate { };
         public event RoutedEventHandler SetDefaultClick = delegate { };
         public event RoutedEventHandler EnableToggleChanged = delegate { };
+        public event RoutedEventHandler DebugMemoryClick = delegate { };
 
         public ActionMenuControl()
         {
@@ -21,6 +22,7 @@ namespace plomfX.Views.UserControls
             SetDefaultButton.Click += (s, e) => SetDefaultClick?.Invoke(this, e);
             EnableToggleButton.Checked += (s, e) => EnableToggleChanged?.Invoke(this, e);
             EnableToggleButton.Unchecked += (s, e) => EnableToggleChanged?.Invoke(this, e);
+            DebugMemoryButton.Click += (s, e) => DebugMemoryClick?.Invoke(this, e);
         }
 
         public bool IsOverlayEnabled

@@ -1,5 +1,6 @@
-using WpfColor = System.Windows.Media.Color;
+using System.Windows;
 using System.Windows.Media;
+using WpfColor = System.Windows.Media.Color;
 
 namespace plomfX.Views.UserControls
 {
@@ -8,6 +9,7 @@ namespace plomfX.Views.UserControls
         public event Action<double>? ScaleChanged;
         public event Action<double>? OpacityChanged;
         public event Action<WpfColor>? TintChanged;
+        private WpfColor _currentTint = Colors.White;
 
         public CrosshairSettingsControl()
         {
@@ -27,17 +29,19 @@ namespace plomfX.Views.UserControls
             
             PickColorButton.Click += (s, e) =>
             {
-                var dialog = new System.Windows.Forms.ColorDialog();
-                if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                var dialog = new Views.ColorPickerDialog(_currentTint);
+                dialog.Owner = Window.GetWindow(this);
+                if (dialog.ShowDialog() == true)
                 {
-                    var wpfColor = WpfColor.FromArgb(dialog.Color.A, dialog.Color.R, dialog.Color.G, dialog.Color.B);
-                    ColorPreview.Fill = new SolidColorBrush(wpfColor);
-                    TintChanged?.Invoke(wpfColor);
+                    _currentTint = dialog.SelectedColor;
+                    ColorPreview.Fill = new SolidColorBrush(_currentTint);
+                    TintChanged?.Invoke(_currentTint);
                 }
             };
         }
         public void SetInitialValues(double scale, double opacity, WpfColor tint)
         {
+            _currentTint = tint;
             ScaleSlider.Value = scale;
             OpacitySlider.Value = opacity;
             ColorPreview.Fill = new SolidColorBrush(tint);

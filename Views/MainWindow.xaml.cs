@@ -20,8 +20,10 @@ namespace plomfX.Views
         private string _currentCrosshairPath = string.Empty;
         private double _currentScale = 1.0; // 100%
         private double _currentOpacity = 1.0;
-        private WpfColor _currentTint = WpfColor.FromRgb(255, 255, 255);
+        private WpfColor _currentTint = Colors.White;
         private WinForms.ToolStripMenuItem? _toggleMenuItem;
+
+        private System.Windows.Media.Imaging.BitmapSource? _currentOriginalBitmap;
 
         public MainWindow()
         {
@@ -57,6 +59,7 @@ namespace plomfX.Views
             ActionMenuControl.SetDefaultClick += OnSetDefaultClick;
             ActionMenuControl.EnableToggleChanged += OnEnableToggleChanged;
             CrosshairBrowserControl.CrosshairSelected += OnCrosshairSelected;
+            ActionMenuControl.DebugMemoryClick += OnDebugMemoryClick;
 
 
             // Settings popup events
@@ -83,6 +86,9 @@ namespace plomfX.Views
                 
                 SettingsPopup.SetInitialValues(_currentScale, _currentOpacity, _currentTint);
             }
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
         }
 
         // ---------- Tray ----------
@@ -194,11 +200,32 @@ namespace plomfX.Views
             }
         }
 
-        private void OnCrosshairSettingsClick(object sender, RoutedEventArgs e)
+        private void LoadAndShareBitmap(string imagePath)
         {
-            bool showSettings = SettingsPopup.Visibility != Visibility.Visible;
-            SettingsPopup.Visibility = showSettings ? Visibility.Visible : Visibility.Collapsed;
-            CrosshairBrowserControl.Visibility = showSettings ? Visibility.Collapsed : Visibility.Visible;
+            try
+            {
+                var bitmap = new System.Windows.Media.Imaging.BitmapImage();
+                bitmap.BeginInit();
+                bitmap.UriSource = new Uri(imagePath, UriKind.RelativeOrAbsolute);
+                bitmap.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad;
+                bitmap.EndInit();
+                bitmap.Freeze();
+                _currentOriginalBitmap = bitmap;
+
+                _overlayWindow.SetOriginalBitmap(bitmap, imagePath);
+                PreviewControl.SetOriginalBitmap(bitmap);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Failed to load crosshair: {ex.Message}");
+            }
+        }
+
+        private void OnCrosshairSelected(string imagePath)
+        {
+            _currentCrosshairPath = imagePath;
+            LoadAndShareBitmap(imagePath);
+            ApplyCrosshairProperties();
         }
 
         private void OnSetDefaultClick(object sender, RoutedEventArgs e)
@@ -218,18 +245,15 @@ namespace plomfX.Views
             WinForms.MessageBox.Show("Current crosshair saved as default.", "Save Crosshair");
         }
 
-        // ---------- Crosshair Selection ----------
-        private void OnCrosshairSelected(string imagePath)
+        // ---------- Customization Events ----------
+
+        private void OnCrosshairSettingsClick(object sender, RoutedEventArgs e)
         {
-            _currentCrosshairPath = imagePath;
-            PreviewControl.SetPreviewImage(imagePath);
-            _overlayWindow.SetCrosshairImage(imagePath);
-            PreviewControl.SetOpacity(_currentOpacity);
-            PreviewControl.SetColorTint(_currentTint);
-            ApplyCrosshairProperties();
+            bool showSettings = SettingsPopup.Visibility != Visibility.Visible;
+            SettingsPopup.Visibility = showSettings ? Visibility.Visible : Visibility.Collapsed;
+            CrosshairBrowserControl.Visibility = showSettings ? Visibility.Collapsed : Visibility.Visible;
         }
 
-        // ---------- Customization Events ----------
         private void OnScaleChanged(double scale)
         {
             _currentScale = scale;
@@ -269,6 +293,17 @@ namespace plomfX.Views
             {
                 _overlayWindow.Hide();
             }
+        }
+
+        private void OnDebugMemoryClick(object sender, RoutedEventArgs e)
+        {
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            GC.Collect(); // Second collect for finalizers
+            long managedMem = GC.GetTotalMemory(false);
+            long workingSet = Environment.WorkingSet;
+            System.Windows.MessageBox.Show($"Managed Memory: {managedMem / 1024 / 1024} MB\nWorking Set: {workingSet / 1024 / 1024} MB",
+                            "Memory Usage");
         }
 
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)

@@ -92,19 +92,28 @@ namespace plomfX.Services
         /// </summary>
         public static void ApplyTheme(Theme theme)
         {
-            var app = System.Windows.Application.Current; // fully qualified
+            var app = System.Windows.Application.Current;
             if (app == null) return;
 
             var primaryBrush = new SolidColorBrush(theme.PrimaryColor);
             var secondaryBrush = new SolidColorBrush(theme.SecondaryColor);
+            var hoverBrush = new SolidColorBrush(LightenColor(theme.SecondaryColor, 0.25f));
+            var borderBrush = new SolidColorBrush(DarkenColor(theme.PrimaryColor, 0.2f));
+            var foregroundBrush = new SolidColorBrush(GetContrastColor(theme.SecondaryColor));
 
+            // Freeze brushes for performance and reduced memory overhead
+            primaryBrush.Freeze();
+            secondaryBrush.Freeze();
+            hoverBrush.Freeze();
+            borderBrush.Freeze();
+            foregroundBrush.Freeze();
+
+            // Replace existing resources (do not Add, as that may keep old ones)
             app.Resources["PrimaryBackgroundBrush"] = primaryBrush;
             app.Resources["SecondaryAccentBrush"] = secondaryBrush;
-            app.Resources["PrimaryBorderBrush"] = new SolidColorBrush(DarkenColor(theme.PrimaryColor, 0.2f));
-            app.Resources["SecondaryForegroundBrush"] = new SolidColorBrush(GetContrastColor(theme.SecondaryColor));
-            // Optional hover brush
-            var hoverBrush = new SolidColorBrush(LightenColor(theme.SecondaryColor, 0.25f));
             app.Resources["SecondaryHoverBrush"] = hoverBrush;
+            app.Resources["PrimaryBorderBrush"] = borderBrush;
+            app.Resources["SecondaryForegroundBrush"] = foregroundBrush;
         }
 
         // Helper: Lighten a color by a factor (0.0 - 1.0)
