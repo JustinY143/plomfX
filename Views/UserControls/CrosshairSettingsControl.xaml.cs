@@ -8,44 +8,84 @@ namespace plomfX.Views.UserControls
 {
     public partial class CrosshairSettingsControl : System.Windows.Controls.UserControl
     {
-        // 2-parameter ScaleChanged
-        public event Action<double, double>? ScaleChanged;
+        public event Action<double, double, bool>? ScaleChanged;
         public event Action<double>? OpacityChanged;
+        public event Action<double>? OffsetYChanged;
         public event Action<WpfColor>? TintChanged;
         public event Action? BackRequested;
 
         private WpfColor _currentTint = Colors.White;
         private bool _independentScale = false;
+        private bool _useSliderForOffset = true;
+        private bool _suppressOffsetEvents = false;
 
         public CrosshairSettingsControl()
         {
             InitializeComponent();
 
+            IndependentScaleCheckBox.Checked += IndependentScale_Changed;
+            IndependentScaleCheckBox.Unchecked += IndependentScale_Changed;
+
             ScaleSlider.ValueChanged += (s, e) =>
             {
                 ScaleValueText.Text = $"{e.NewValue:P0}";
                 if (!_independentScale)
-                    ScaleChanged?.Invoke(e.NewValue, e.NewValue);
+                    ScaleChanged?.Invoke(e.NewValue, e.NewValue, false);
             };
 
             ScaleXSlider.ValueChanged += (s, e) =>
             {
                 ScaleXValueText.Text = $"{e.NewValue:P0}";
                 if (_independentScale)
-                    ScaleChanged?.Invoke(e.NewValue, ScaleYSlider.Value);
+                    ScaleChanged?.Invoke(e.NewValue, ScaleYSlider.Value, true);
             };
 
             ScaleYSlider.ValueChanged += (s, e) =>
             {
                 ScaleYValueText.Text = $"{e.NewValue:P0}";
                 if (_independentScale)
-                    ScaleChanged?.Invoke(ScaleXSlider.Value, e.NewValue);
+                    ScaleChanged?.Invoke(ScaleXSlider.Value, e.NewValue, true);
             };
 
             OpacitySlider.ValueChanged += (s, e) =>
             {
                 OpacityValueText.Text = $"{e.NewValue:P0}";
                 OpacityChanged?.Invoke(e.NewValue);
+            };
+
+            // Slider mode
+            OffsetYSlider.ValueChanged += (s, e) =>
+            {
+                if (_suppressOffsetEvents) return;
+                _suppressOffsetEvents = true;
+                OffsetYTextBox.Text = ((int)e.NewValue).ToString();
+                UpdateOffsetLabel(e.NewValue);
+                _suppressOffsetEvents = false;
+                OffsetYChanged?.Invoke(e.NewValue);
+            };
+
+            // Textbox mode
+            OffsetYTextBox.TextChanged += (s, e) =>
+            {
+                if (_suppressOffsetEvents) return;
+                if (int.TryParse(OffsetYTextBox.Text, out int val))
+                {
+                    val = Math.Clamp(val, -150, 150);
+                    _suppressOffsetEvents = true;
+                    OffsetYSlider.Value = val;
+                    _suppressOffsetEvents = false;
+                    OffsetYChanged?.Invoke(val);
+                }
+            };
+
+            OffsetYTextBox.LostFocus += (s, e) =>
+            {
+                if (int.TryParse(OffsetYTextBox.Text, out int val))
+                    val = Math.Clamp(val, -150, 150);
+                else
+                    val = 0;
+                OffsetYTextBox.Text = val.ToString();
+                OffsetYSlider.Value = val;
             };
 
             PickColorButton.Click += (s, e) =>
@@ -70,7 +110,12 @@ namespace plomfX.Views.UserControls
             BackButton.Click += (s, e) => BackRequested?.Invoke();
         }
 
-        // Matches the XAML Checked/Unchecked handlers
+        private void UpdateOffsetLabel(double value)
+        {
+            int v = (int)value;
+            OffsetYValueText.Text = v > 0 ? $"+{v} px" : $"{v} px";
+        }
+
         private void IndependentScale_Changed(object sender, RoutedEventArgs e)
         {
             _independentScale = IndependentScaleCheckBox.IsChecked == true;
@@ -81,18 +126,28 @@ namespace plomfX.Views.UserControls
                 ScaleYSlider.Value = ScaleSlider.Value;
                 UnifiedScalePanel.Visibility = Visibility.Collapsed;
                 IndependentScalePanel.Visibility = Visibility.Visible;
-                ScaleChanged?.Invoke(ScaleXSlider.Value, ScaleYSlider.Value);
+                ScaleChanged?.Invoke(ScaleXSlider.Value, ScaleYSlider.Value, true);
             }
             else
             {
                 ScaleSlider.Value = ScaleXSlider.Value;
                 UnifiedScalePanel.Visibility = Visibility.Visible;
                 IndependentScalePanel.Visibility = Visibility.Collapsed;
-                ScaleChanged?.Invoke(ScaleSlider.Value, ScaleSlider.Value);
+                ScaleChanged?.Invoke(ScaleSlider.Value, ScaleSlider.Value, false);
             }
         }
 
-        public void SetInitialValues(double scaleX, double scaleY, double opacity, WpfColor tint, bool independent)
+        /// <summary>
+        /// Toggle between slider and textbox input for the Y offset.
+        /// </summary>
+        public void SetOffsetInputMode(bool useSlider)
+        {
+            _useSliderForOffset = useSlider;
+            OffsetSliderPanel.Visibility = useSlider ? Visibility.Visible : Visibility.Collapsed;
+            OffsetTextPanel.Visibility = useSlider ? Visibility.Collapsed : Visibility.Visible;
+        }
+
+        public void SetInitialValues(double scaleX, double scaleY, double opacity, double offsetY, WpfColor tint, bool independent, bool useSliderForOffset)
         {
             _independentScale = independent;
             _currentTint = tint;
@@ -118,6 +173,16 @@ namespace plomfX.Views.UserControls
 
             OpacitySlider.Value = opacity;
             OpacityValueText.Text = $"{opacity:P0}";
+
+            // Set offset (both inputs stay in sync)
+            _suppressOffsetEvents = true;
+            OffsetYSlider.Value = offsetY;
+            OffsetYTextBox.Text = ((int)offsetY).ToString();
+            UpdateOffsetLabel(offsetY);
+            _suppressOffsetEvents = false;
+
+            SetOffsetInputMode(useSliderForOffset);
+
             ColorPreview.Fill = new SolidColorBrush(tint);
         }
     }

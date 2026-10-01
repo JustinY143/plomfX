@@ -119,6 +119,11 @@ namespace plomfX.Views
             _tintedCache.Clear();
         }
 
+        public void SetOffsetY(double offsetY)
+        {
+            CrosshairTranslateTransform.Y = offsetY;
+        }
+
         // Keep SetCrosshairImage for backward compatibility if needed, but it's now obsolete
         public void SetCrosshairImage(string imagePath)
         {

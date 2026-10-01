@@ -14,11 +14,18 @@ namespace plomfX.Services
         public double DefaultScaleX { get; set; } = 1.0;
         public double DefaultScaleY { get; set; } = 1.0;
         public bool IndependentScaling { get; set; } = false;
+        public double DefaultOffsetX { get; set; } = 0;
+        public double DefaultOffsetY { get; set; } = 0;
         public double DefaultOpacity { get; set; } = 1.0;
         public WpfColor DefaultTint { get; set; } = Colors.White;
         public int SelectedMonitorIndex { get; set; } = 0; // default to primary monitor
         public bool ShowDebugButton = false;
         public List<string> CustomColors { get; set; } = new List<string>();
+
+        public bool UseSliderForOffset { get; set; } = true;   // true = slider, false = textbox
+        public double MainWindowWidth { get; set; } = 800;
+        public double MainWindowHeight { get; set; } = 450;
+
 
     }
 

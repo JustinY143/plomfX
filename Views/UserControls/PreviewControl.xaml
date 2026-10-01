@@ -26,13 +26,13 @@
             
             <!-- Crosshair preview image centered -->
             <Image x:Name="PreviewImage"
-                    Grid.Row="1"
-                    Stretch="None"
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Center"
-                    Margin="5"
-                    RenderOptions.BitmapScalingMode="HighQuality"
-                    RenderTransformOrigin="0.5,0.5">
+                Grid.Row="1"
+                Stretch="None"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Margin="5"
+                RenderOptions.BitmapScalingMode="HighQuality"
+                RenderTransformOrigin="0.5,0.5">
                 <Image.RenderTransform>
                     <ScaleTransform x:Name="PreviewScaleTransform" ScaleX="1" ScaleY="1"/>
                 </Image.RenderTransform>

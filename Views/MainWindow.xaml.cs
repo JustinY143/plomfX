@@ -22,6 +22,7 @@ namespace plomfX.Views
         private double _currentScaleY = 1.0;
         private bool _independentScaling = false;
         private double _currentOpacity = 1.0;
+        private double _currentOffsetY = 0;
         private WpfColor _currentTint = Colors.White;
         private WinForms.ToolStripMenuItem? _toggleMenuItem;
 
@@ -33,6 +34,11 @@ namespace plomfX.Views
             InitializeComponent();
             InitializeTrayIcon();
             _settings = SettingsService.Load();
+
+            // Apply saved window size
+            Width = _settings.MainWindowWidth;
+            Height = _settings.MainWindowHeight;
+
             ActionMenuControl.SetDebugButtonVisibility(_settings.ShowDebugButton);
 
             // Create and configure the overlay window
@@ -71,6 +77,7 @@ namespace plomfX.Views
 
             // Settings popup events
             SettingsPopup.ScaleChanged += OnScaleChanged;
+            SettingsPopup.OffsetYChanged += OnOffsetYChanged;
             SettingsPopup.OpacityChanged += OnOpacityChanged;
             SettingsPopup.TintChanged += OnTintChanged;
             SettingsPopup.BackRequested += OnBackRequested;
@@ -83,6 +90,7 @@ namespace plomfX.Views
                 _currentScaleY = _settings.DefaultScaleY;
                 _independentScaling = _settings.IndependentScaling;
                 _currentOpacity = _settings.DefaultOpacity;
+                _currentOffsetY = _settings.DefaultOffsetY;
                 _currentTint = _settings.DefaultTint;
 
                 _overlayWindow.SetCrosshairImage(_currentCrosshairPath);
@@ -90,11 +98,12 @@ namespace plomfX.Views
 
                 _overlayWindow.SetScale(_currentScaleX, _currentScaleY);
                 _overlayWindow.SetOpacity(_currentOpacity);
-                PreviewControl.SetOpacity(_currentOpacity);
                 _overlayWindow.SetColorTint(_currentTint);
+                _overlayWindow.SetOffsetY(_currentOffsetY);
+                PreviewControl.SetOpacity(_currentOpacity);
                 PreviewControl.SetColorTint(_currentTint);
 
-                SettingsPopup.SetInitialValues(_currentScaleX, _currentScaleY, _currentOpacity, _currentTint, _independentScaling);
+                SettingsPopup.SetInitialValues(_currentScaleX, _currentScaleY, _currentOpacity, _currentOffsetY, _currentTint, _independentScaling, _settings.UseSliderForOffset);
             }
             GC.Collect();
             GC.WaitForPendingFinalizers();
@@ -152,6 +161,12 @@ namespace plomfX.Views
                 _notifyIcon!.Visible = true;
             }
             base.OnStateChanged(e);
+        }
+
+        public void RefreshOffsetInputMode()
+        {
+            var settings = SettingsService.Load();
+            SettingsPopup.SetOffsetInputMode(settings.UseSliderForOffset);
         }
 
         private void OnColorTintClick(object sender, RoutedEventArgs e)
@@ -254,6 +269,7 @@ namespace plomfX.Views
             _settings.DefaultScaleY = _currentScaleY;
             _settings.IndependentScaling = _independentScaling;
             _settings.DefaultOpacity = _currentOpacity;
+            _settings.DefaultOffsetY = _currentOffsetY;
             _settings.DefaultTint = _currentTint;
             SettingsService.Save(_settings);
             WinForms.MessageBox.Show("Current crosshair saved as default.", "Save Crosshair");
@@ -267,12 +283,19 @@ namespace plomfX.Views
             CrosshairBrowserControl.Visibility = showSettings ? Visibility.Collapsed : Visibility.Visible;
         }
 
-        private void OnScaleChanged(double scaleX, double scaleY)
+        private void OnScaleChanged(double scaleX, double scaleY, bool independent)
         {
             _currentScaleX = scaleX;
             _currentScaleY = scaleY;
+            _independentScaling = independent;
             _overlayWindow.SetScale(scaleX, scaleY);
             PreviewControl.SetScale(scaleX, scaleY);
+        }
+
+        private void OnOffsetYChanged(double offsetY)
+        {
+            _currentOffsetY = offsetY;
+            _overlayWindow.SetOffsetY(offsetY);
         }
 
         private void OnOpacityChanged(double opacity)
@@ -294,6 +317,7 @@ namespace plomfX.Views
             _overlayWindow.SetScale(_currentScaleX, _currentScaleY);
             _overlayWindow.SetOpacity(_currentOpacity);
             _overlayWindow.SetColorTint(_currentTint);
+            _overlayWindow.SetOffsetY(_currentOffsetY);
 
             PreviewControl.SetScale(_currentScaleX, _currentScaleY);
             PreviewControl.SetOpacity(_currentOpacity);

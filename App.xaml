@@ -8,6 +8,7 @@
         <SolidColorBrush x:Key="PrimaryBorderBrush" Color="#FF3E3E42"/>
         <SolidColorBrush x:Key="SecondaryAccentBrush" Color="#FF3E3E42"/>
         <SolidColorBrush x:Key="SecondaryForegroundBrush" Color="White"/>
+        <SolidColorBrush x:Key="PrimaryForegroundBrush" Color="White"/>
         <Style TargetType="Button" x:Key="ActionButtonStyle">
             <Setter Property="Background" Value="{DynamicResource SecondaryAccentBrush}"/>
             <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>

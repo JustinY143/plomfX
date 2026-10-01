@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
-using System.Windows.Forms; // For Screen
 using plomfX.Services;
+using WinForms = System.Windows.Forms;
 
 namespace plomfX.Views
 {
@@ -16,12 +16,22 @@ namespace plomfX.Views
         {
             InitializeComponent();
             _settings = SettingsService.Load();
+
             LoadMonitors();
+
+            // Load offset input style
+            SliderOffsetCheckBox.IsChecked = _settings.UseSliderForOffset;
+
+            // Show current main window size
+            if (Owner is MainWindow mw)
+            {
+                WindowSizeText.Text = $"({(int)mw.Width} × {(int)mw.Height})";
+            }
         }
 
         private void LoadMonitors()
         {
-            _screens = Screen.AllScreens.Select((s, i) => new ScreenInfo
+            _screens = WinForms.Screen.AllScreens.Select((s, i) => new ScreenInfo
             {
                 DeviceName = s.DeviceName,
                 Bounds = s.Bounds,
@@ -31,7 +41,6 @@ namespace plomfX.Views
 
             MonitorComboBox.ItemsSource = _screens;
 
-            // Select the saved monitor index, default to primary
             int savedIndex = _settings.SelectedMonitorIndex;
             if (savedIndex >= 0 && savedIndex < _screens.Count)
                 MonitorComboBox.SelectedIndex = savedIndex;
@@ -39,15 +48,35 @@ namespace plomfX.Views
                 MonitorComboBox.SelectedIndex = _screens.FindIndex(s => s.IsPrimary);
         }
 
+        private void SaveWindowSize_Click(object sender, RoutedEventArgs e)
+        {
+            if (Owner is MainWindow mw)
+            {
+                _settings.MainWindowWidth = mw.Width;
+                _settings.MainWindowHeight = mw.Height;
+                SettingsService.Save(_settings);
+                WindowSizeText.Text = $"({(int)mw.Width} × {(int)mw.Height})";
+            }
+        }
+
         private void Save_Click(object sender, RoutedEventArgs e)
         {
             if (MonitorComboBox.SelectedItem is ScreenInfo selected)
             {
                 _settings.SelectedMonitorIndex = selected.Index;
-                SettingsService.Save(_settings);
-                // Notify MainWindow to reposition overlay
-                ((MainWindow)Owner).ApplyMonitorSettings();
             }
+
+            _settings.UseSliderForOffset = SliderOffsetCheckBox.IsChecked == true;
+
+            SettingsService.Save(_settings);
+
+            // Notify MainWindow to reposition overlay and refresh settings
+            if (Owner is MainWindow mw)
+            {
+                mw.ApplyMonitorSettings();
+                mw.RefreshOffsetInputMode();
+            }
+
             DialogResult = true;
             Close();
         }

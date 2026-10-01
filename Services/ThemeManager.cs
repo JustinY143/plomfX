@@ -100,6 +100,7 @@ Blue: 25,30,45 : 0,122,204";
             var hoverBrush = new SolidColorBrush(LightenColor(theme.SecondaryColor, 0.25f));
             var borderBrush = new SolidColorBrush(DarkenColor(theme.PrimaryColor, 0.2f));
             var foregroundBrush = new SolidColorBrush(GetContrastColor(theme.SecondaryColor));
+            var primaryForegroundBrush = new SolidColorBrush(GetContrastColor(theme.PrimaryColor));
 
             // Freeze brushes for performance and reduced memory overhead
             primaryBrush.Freeze();
@@ -107,6 +108,7 @@ Blue: 25,30,45 : 0,122,204";
             hoverBrush.Freeze();
             borderBrush.Freeze();
             foregroundBrush.Freeze();
+            primaryForegroundBrush.Freeze();
 
             // Replace existing resources (do not Add, as that may keep old ones)
             app.Resources["PrimaryBackgroundBrush"] = primaryBrush;
@@ -114,6 +116,7 @@ Blue: 25,30,45 : 0,122,204";
             app.Resources["SecondaryHoverBrush"] = hoverBrush;
             app.Resources["PrimaryBorderBrush"] = borderBrush;
             app.Resources["SecondaryForegroundBrush"] = foregroundBrush;
+            app.Resources["PrimaryForegroundBrush"] = primaryForegroundBrush;
         }
 
         // Helper: Lighten a color by a factor (0.0 - 1.0)

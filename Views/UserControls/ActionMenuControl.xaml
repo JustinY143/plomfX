@@ -20,21 +20,22 @@
             </Grid.RowDefinitions>
             
             <TextBlock Text="ACTIONS" 
-                       Foreground="{DynamicResource SecondaryAccentBrush}"
-                       FontSize="10" 
-                       Margin="0,0,0,10"
-                       FontWeight="SemiBold"/>
-            
+                    Foreground="{DynamicResource SecondaryAccentBrush}"
+                    FontSize="10" 
+                    Margin="0,0,0,10"
+                    FontWeight="SemiBold"/>
+                    
             <!-- Vertical button stack -->
             <StackPanel Grid.Row="1" VerticalAlignment="Top">
-                <Button x:Name="SettingsButton" 
-                        Content="⚙ Settings" 
+
+                <Button x:Name="CrosshairSettingsButton" 
+                        Content="✚ Crosshair Settings" 
                         Margin="0,0,0,8" 
                         Padding="10,6"
                         Style="{StaticResource ActionButtonStyle}"/>
-                
-                <Button x:Name="CrosshairSettingsButton" 
-                        Content="✚ Crosshair Settings" 
+
+                <Button x:Name="SettingsButton" 
+                        Content="⚙ Settings" 
                         Margin="0,0,0,8" 
                         Padding="10,6"
                         Style="{StaticResource ActionButtonStyle}"/>
@@ -44,6 +45,7 @@
                         Margin="0,0,0,20" 
                         Padding="10,6"
                         Style="{StaticResource ActionButtonStyle}"/>
+                        
                 <Button x:Name="DebugMemoryButton" 
                         Content="📊 Debug Mem" 
                         Margin="0,10,0,0" 
@@ -56,7 +58,7 @@
                         Grid.Row="2"
                         IsChecked="False"
                         Padding="10,12"
-                        Foreground="White"
+                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                         BorderThickness="0"
                         FontWeight="Bold"
                         Cursor="Hand"
@@ -64,6 +66,7 @@
                 <ToggleButton.Style>
                     <Style TargetType="ToggleButton">
                         <Setter Property="Background" Value="{DynamicResource SecondaryAccentBrush}"/>
+                        <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate TargetType="ToggleButton">
@@ -88,7 +91,6 @@
                             </Setter.Value>
                         </Setter>
                         <Style.Triggers>
-                            <!-- Set Content based on IsChecked -->
                             <Trigger Property="IsChecked" Value="True">
                                 <Setter Property="Content" Value="ENABLED"/>
                             </Trigger>
