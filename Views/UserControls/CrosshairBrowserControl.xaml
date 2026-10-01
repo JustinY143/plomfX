@@ -37,7 +37,8 @@
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate TargetType="TabItem">
-                                    <Border Background="{TemplateBinding Background}"
+                                    <Border x:Name="tabBorder"
+                                            Background="{TemplateBinding Background}"
                                             BorderBrush="{TemplateBinding BorderBrush}"
                                             BorderThickness="0"
                                             CornerRadius="4,4,0,0"
@@ -48,8 +49,9 @@
                                     </Border>
                                     <ControlTemplate.Triggers>
                                         <Trigger Property="IsSelected" Value="True">
-                                            <Setter Property="Background" Value="{DynamicResource SecondaryAccentBrush}"/>
-                                            <Setter Property="Foreground" Value="White"/>
+                                            <Setter TargetName="tabBorder" Property="Background" 
+                                                    Value="{DynamicResource SecondaryHoverBrush}"/>
+                                            <Setter Property="FontWeight" Value="Bold"/>
                                         </Trigger>
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>
