@@ -5,7 +5,7 @@ A lightweight, external crosshair overlay for Windows. This only works if you pl
 ## Features
 
 - Browse and select crosshairs from organized folders
-- Scale X and Y independently, adjust opacity
+- Scale X and Y independently, adjust opacity, crosshair offset
 - RGB color tinting with hex input and saved custom colors
 - Multi-monitor support
 - Custom themes via `themes.txt`
