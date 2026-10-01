@@ -11,7 +11,9 @@ namespace plomfX.Services
     {
         public string ThemeName { get; set; } = "Dark";
         public string DefaultCrosshairPath { get; set; } = string.Empty;
-        public double DefaultScale { get; set; } = 1.0;
+        public double DefaultScaleX { get; set; } = 1.0;
+        public double DefaultScaleY { get; set; } = 1.0;
+        public bool IndependentScaling { get; set; } = false;
         public double DefaultOpacity { get; set; } = 1.0;
         public WpfColor DefaultTint { get; set; } = Colors.White;
         public int SelectedMonitorIndex { get; set; } = 0; // default to primary monitor

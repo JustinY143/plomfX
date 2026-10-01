@@ -59,11 +59,13 @@ namespace plomfX.Views
             CrosshairImage.Source = bitmap;
         }
 
-        public void SetScale(double scaleFactor)
+        public void SetScale(double scaleX, double scaleY)
         {
-            CrosshairScaleTransform.ScaleX = scaleFactor;
-            CrosshairScaleTransform.ScaleY = scaleFactor;
+            CrosshairScaleTransform.ScaleX = scaleX;
+            CrosshairScaleTransform.ScaleY = scaleY;
         }
+
+        public void SetScale(double scale) => SetScale(scale, scale);
 
         public void SetOpacity(double opacity)
         {

@@ -63,11 +63,13 @@ namespace plomfX.Views.UserControls
             }
         }
 
-        public void SetScale(double scale)
+        public void SetScale(double scaleX, double scaleY)
         {
-            PreviewScaleTransform.ScaleX = scale;
-            PreviewScaleTransform.ScaleY = scale;
+            PreviewScaleTransform.ScaleX = scaleX;
+            PreviewScaleTransform.ScaleY = scaleY;
         }
+
+        public void SetScale(double scale) => SetScale(scale, scale);
 
         private BitmapSource ApplyColorTint(BitmapSource source, WpfColor tint)
         {

@@ -18,7 +18,9 @@ namespace plomfX.Views
         private AppSettings _settings;
 
         private string _currentCrosshairPath = string.Empty;
-        private double _currentScale = 1.0; // 100%
+        private double _currentScaleX = 1.0;
+        private double _currentScaleY = 1.0;
+        private bool _independentScaling = false;
         private double _currentOpacity = 1.0;
         private WpfColor _currentTint = Colors.White;
         private WinForms.ToolStripMenuItem? _toggleMenuItem;
@@ -32,6 +34,7 @@ namespace plomfX.Views
             InitializeTrayIcon();
             _settings = SettingsService.Load();
             ActionMenuControl.SetDebugButtonVisibility(_settings.ShowDebugButton);
+
             // Create and configure the overlay window
             _overlayWindow = new OverlayWindow();
             _overlayWindow.Loaded += (s, e) =>
@@ -39,7 +42,7 @@ namespace plomfX.Views
                 PositionOverlayOnMonitor(_settings.SelectedMonitorIndex);
             };
 
-            //Load themes
+            // Load themes
             var themes = ThemeManager.LoadThemes();
             ThemeComboBox.ItemsSource = themes;
 
@@ -55,7 +58,7 @@ namespace plomfX.Views
                 ThemeManager.ApplyTheme(themes[0]);
             }
 
-            ApplyMonitorSettings(); 
+            ApplyMonitorSettings();
 
             // Wire up events
             ActionMenuControl.SettingsClick += OnSettingsClick;
@@ -65,7 +68,6 @@ namespace plomfX.Views
             ActionMenuControl.EnableToggleChanged += OnEnableToggleChanged;
             CrosshairBrowserControl.CrosshairSelected += OnCrosshairSelected;
             ActionMenuControl.DebugMemoryClick += OnDebugMemoryClick;
-
 
             // Settings popup events
             SettingsPopup.ScaleChanged += OnScaleChanged;
@@ -77,20 +79,22 @@ namespace plomfX.Views
             if (!string.IsNullOrEmpty(_settings.DefaultCrosshairPath) && File.Exists(_settings.DefaultCrosshairPath))
             {
                 _currentCrosshairPath = _settings.DefaultCrosshairPath;
-                _currentScale = _settings.DefaultScale;
+                _currentScaleX = _settings.DefaultScaleX;
+                _currentScaleY = _settings.DefaultScaleY;
+                _independentScaling = _settings.IndependentScaling;
                 _currentOpacity = _settings.DefaultOpacity;
                 _currentTint = _settings.DefaultTint;
 
                 _overlayWindow.SetCrosshairImage(_currentCrosshairPath);
                 PreviewControl.SetPreviewImage(_currentCrosshairPath);
-                
-                _overlayWindow.SetScale(_currentScale);
+
+                _overlayWindow.SetScale(_currentScaleX, _currentScaleY);
                 _overlayWindow.SetOpacity(_currentOpacity);
                 PreviewControl.SetOpacity(_currentOpacity);
                 _overlayWindow.SetColorTint(_currentTint);
                 PreviewControl.SetColorTint(_currentTint);
-                
-                SettingsPopup.SetInitialValues(_currentScale, _currentOpacity, _currentTint);
+
+                SettingsPopup.SetInitialValues(_currentScaleX, _currentScaleY, _currentOpacity, _currentTint, _independentScaling);
             }
             GC.Collect();
             GC.WaitForPendingFinalizers();
@@ -110,7 +114,6 @@ namespace plomfX.Views
 
             var contextMenu = new WinForms.ContextMenuStrip();
 
-            // Enable/Disable toggle item
             _toggleMenuItem = new WinForms.ToolStripMenuItem("Enable Crosshair");
             _toggleMenuItem.CheckOnClick = true;
             _toggleMenuItem.Checked = ActionMenuControl.IsOverlayEnabled;
@@ -124,10 +127,9 @@ namespace plomfX.Views
             contextMenu.Items.Add(new WinForms.ToolStripSeparator());
             contextMenu.Items.Add("Show", null, (s, e) => ShowWindow());
             contextMenu.Items.Add("Exit", null, (s, e) => { _notifyIcon.Visible = false; System.Windows.Application.Current.Shutdown(); });
-            
+
             _notifyIcon.ContextMenuStrip = contextMenu;
 
-            // Subscribe to overlay enabled changes to keep menu item in sync
             ActionMenuControl.EnableToggleChanged += (s, e) =>
             {
                 if (_toggleMenuItem != null)
@@ -157,13 +159,12 @@ namespace plomfX.Views
             var dialog = new WinForms.ColorDialog();
             if (dialog.ShowDialog() == WinForms.DialogResult.OK)
             {
-                // Convert System.Drawing.Color to System.Windows.Media.Color
                 var winFormsColor = dialog.Color;
                 var wpfColor = WpfColor.FromArgb(winFormsColor.A, winFormsColor.R, winFormsColor.G, winFormsColor.B);
                 _currentTint = wpfColor;
                 _overlayWindow.SetColorTint(wpfColor);
             }
-        }        
+        }
 
         // ---------- Theme ----------
         private void ThemeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -205,7 +206,7 @@ namespace plomfX.Views
                 _overlayWindow.Top = screen.Bounds.Top;
                 _overlayWindow.Width = screen.Bounds.Width;
                 _overlayWindow.Height = screen.Bounds.Height;
-                _overlayWindow.WindowState = WindowState.Normal; // Must be normal to set bounds
+                _overlayWindow.WindowState = WindowState.Normal;
                 _overlayWindow.WindowStyle = WindowStyle.None;
                 _overlayWindow.ResizeMode = ResizeMode.NoResize;
                 _overlayWindow.Topmost = true;
@@ -242,7 +243,6 @@ namespace plomfX.Views
 
         private void OnSetDefaultClick(object sender, RoutedEventArgs e)
         {
-            // Save current crosshair + settings as default
             if (string.IsNullOrEmpty(_currentCrosshairPath))
             {
                 WinForms.MessageBox.Show("No crosshair selected to save.", "Save Crosshair");
@@ -250,7 +250,9 @@ namespace plomfX.Views
             }
 
             _settings.DefaultCrosshairPath = _currentCrosshairPath;
-            _settings.DefaultScale = _currentScale;
+            _settings.DefaultScaleX = _currentScaleX;
+            _settings.DefaultScaleY = _currentScaleY;
+            _settings.IndependentScaling = _independentScaling;
             _settings.DefaultOpacity = _currentOpacity;
             _settings.DefaultTint = _currentTint;
             SettingsService.Save(_settings);
@@ -258,7 +260,6 @@ namespace plomfX.Views
         }
 
         // ---------- Customization Events ----------
-
         private void OnCrosshairSettingsClick(object sender, RoutedEventArgs e)
         {
             bool showSettings = SettingsPopup.Visibility != Visibility.Visible;
@@ -266,10 +267,12 @@ namespace plomfX.Views
             CrosshairBrowserControl.Visibility = showSettings ? Visibility.Collapsed : Visibility.Visible;
         }
 
-        private void OnScaleChanged(double scale)
+        private void OnScaleChanged(double scaleX, double scaleY)
         {
-            _currentScale = scale;
-            _overlayWindow.SetScale(scale);
+            _currentScaleX = scaleX;
+            _currentScaleY = scaleY;
+            _overlayWindow.SetScale(scaleX, scaleY);
+            PreviewControl.SetScale(scaleX, scaleY);
         }
 
         private void OnOpacityChanged(double opacity)
@@ -285,18 +288,18 @@ namespace plomfX.Views
             _overlayWindow.SetColorTint(color);
             PreviewControl.SetColorTint(color);
         }
+
         private void ApplyCrosshairProperties()
         {
-            _overlayWindow.SetScale(_currentScale);
+            _overlayWindow.SetScale(_currentScaleX, _currentScaleY);
             _overlayWindow.SetOpacity(_currentOpacity);
             _overlayWindow.SetColorTint(_currentTint);
-            PreviewControl.SetScale(_currentScale);
+
+            PreviewControl.SetScale(_currentScaleX, _currentScaleY);
             PreviewControl.SetOpacity(_currentOpacity);
             PreviewControl.SetColorTint(_currentTint);
         }
 
-
-        // Modify OnEnableToggleChanged to use the helper
         private void OnEnableToggleChanged(object sender, RoutedEventArgs e)
         {
             if (ActionMenuControl.IsOverlayEnabled)
@@ -314,7 +317,7 @@ namespace plomfX.Views
         {
             GC.Collect();
             GC.WaitForPendingFinalizers();
-            GC.Collect(); // Second collect for finalizers
+            GC.Collect();
             long managedMem = GC.GetTotalMemory(false);
             long workingSet = Environment.WorkingSet;
             System.Windows.MessageBox.Show($"Managed Memory: {managedMem / 1024 / 1024} MB\nWorking Set: {workingSet / 1024 / 1024} MB",
