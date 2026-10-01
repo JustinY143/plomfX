@@ -121,7 +121,7 @@ namespace plomfX.Views
 
         public void SetOffsetY(double offsetY)
         {
-            CrosshairTranslateTransform.Y = offsetY;
+            CrosshairTranslateTransform.Y = -offsetY;
         }
 
         // Keep SetCrosshairImage for backward compatibility if needed, but it's now obsolete
