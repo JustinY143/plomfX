@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using WpfColor = System.Windows.Media.Color;
+using System.Windows.Input;
 
 namespace plomfX.Views.UserControls
 {
@@ -86,6 +87,22 @@ namespace plomfX.Views.UserControls
                     val = 0;
                 OffsetYTextBox.Text = val.ToString();
                 OffsetYSlider.Value = val;
+            };
+
+            OffsetYTextBox.PreviewKeyDown += (s, e) =>
+            {
+                if (e.Key == Key.Up || e.Key == Key.Down)
+                {
+                    if (int.TryParse(OffsetYTextBox.Text, out int val))
+                    {
+                        val += e.Key == Key.Up ? 1 : -1;
+                        val = Math.Clamp(val, -150, 150);
+                        OffsetYTextBox.Text = val.ToString();
+                        // Move cursor to end so it doesn't jump
+                        OffsetYTextBox.CaretIndex = OffsetYTextBox.Text.Length;
+                        e.Handled = true;
+                    }
+                }
             };
 
             PickColorButton.Click += (s, e) =>

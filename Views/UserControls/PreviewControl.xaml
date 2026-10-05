@@ -19,11 +19,11 @@
             </Grid.RowDefinitions>
             
             <TextBlock Text="PREVIEW" 
-                       Foreground="#FF999999" 
-                       FontSize="10" 
-                       Margin="8,4,0,0"
-                       FontWeight="SemiBold"/>
-            
+                Foreground="{DynamicResource PrimaryForegroundBrush}" 
+                FontSize="10" 
+                Margin="8,4,0,0"
+                FontWeight="SemiBold"/>
+                    
             <!-- Crosshair preview image centered -->
             <Image x:Name="PreviewImage"
                 Grid.Row="1"

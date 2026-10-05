@@ -12,6 +12,7 @@ namespace plomfX.Views.UserControls
         public event RoutedEventHandler SetDefaultClick = delegate { };
         public event RoutedEventHandler EnableToggleChanged = delegate { };
         public event RoutedEventHandler DebugMemoryClick = delegate { };
+        private System.Windows.Threading.DispatcherTimer? _statusTimer;
 
         public ActionMenuControl()
         {
@@ -34,6 +35,23 @@ namespace plomfX.Views.UserControls
         public void SetDebugButtonVisibility(bool visible)
         {
             DebugMemoryButton.Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
+        }
+        public void ShowStatus(string message)
+        {
+            StatusText.Text = message;
+            StatusText.Opacity = 1;
+
+            _statusTimer?.Stop();
+            _statusTimer = new System.Windows.Threading.DispatcherTimer
+            {
+                Interval = TimeSpan.FromSeconds(2.5)
+            };
+            _statusTimer.Tick += (s, e) =>
+            {
+                StatusText.Opacity = 0;
+                _statusTimer?.Stop();
+            };
+            _statusTimer.Start();
         }
     }
 }

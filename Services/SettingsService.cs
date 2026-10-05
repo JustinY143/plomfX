@@ -11,6 +11,9 @@ namespace plomfX.Services
     {
         public string ThemeName { get; set; } = "Dark";
         public string DefaultCrosshairPath { get; set; } = string.Empty;
+        public bool HotkeyEnabled { get; set; } = false;
+        public int HotkeyModifiers { get; set; } = 0;   // WPF ModifierKeys cast to int
+        public int HotkeyKey { get; set; } = 0;         // WPF Key cast to int
         public double DefaultScaleX { get; set; } = 1.0;
         public double DefaultScaleY { get; set; } = 1.0;
         public bool IndependentScaling { get; set; } = false;

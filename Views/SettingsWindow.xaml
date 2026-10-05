@@ -12,55 +12,86 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <TextBlock Text="General Settings" FontWeight="SemiBold" 
-                   Foreground="{DynamicResource PrimaryForegroundBrush}" 
-                   Margin="0,0,0,15"/>
+                Foreground="{DynamicResource PrimaryForegroundBrush}" 
+                Margin="0,0,0,15"/>
 
-        <!-- Monitor selection -->
+        <!-- Monitor -->
         <StackPanel Grid.Row="1" Margin="0,0,0,15">
             <TextBlock Text="Monitor:" 
-                       Foreground="{DynamicResource PrimaryForegroundBrush}" 
-                       Margin="0,0,0,5"/>
+                Foreground="{DynamicResource PrimaryForegroundBrush}" 
+                Margin="0,0,0,5"/>
             <ComboBox x:Name="MonitorComboBox" DisplayMemberPath="DeviceName" 
-                      Background="{DynamicResource SecondaryAccentBrush}"
-                      Foreground="Black"
-                      BorderThickness="0" Height="28"/>
+                Background="{DynamicResource SecondaryAccentBrush}"
+                Foreground="Black"
+                BorderThickness="0" Height="28"/>
         </StackPanel>
 
         <!-- Offset input style -->
         <StackPanel Grid.Row="2" Margin="0,0,0,15">
             <CheckBox x:Name="SliderOffsetCheckBox" 
-                      Content="Use slider for Y offset (uncheck for text input)" 
-                      Foreground="{DynamicResource PrimaryForegroundBrush}"
-                      IsChecked="True"/>
+                Content="Use slider for Y offset (uncheck for text input)" 
+                Foreground="{DynamicResource PrimaryForegroundBrush}"
+                IsChecked="True"/>
         </StackPanel>
 
-        <!-- Window size -->
+        <!-- Hotkey -->
         <StackPanel Grid.Row="3" Margin="0,0,0,15">
-            <TextBlock Text="Window Size:" 
-                       Foreground="{DynamicResource PrimaryForegroundBrush}" 
-                       Margin="0,0,0,5"/>
+           <TextBlock Text="Toggle Crosshair Hotkey:" 
+                Foreground="{DynamicResource PrimaryForegroundBrush}" 
+                Margin="0,0,0,5"/>
             <StackPanel Orientation="Horizontal">
-                <Button x:Name="SaveWindowSizeButton" 
-                        Content="Save Current Window Size" 
-                        Width="200"
-                        Padding="8,4"
-                        Style="{StaticResource ActionButtonStyle}"
-                        Click="SaveWindowSize_Click"/>
-                <TextBlock x:Name="WindowSizeText" 
-                           Foreground="{DynamicResource PrimaryForegroundBrush}"
-                           VerticalAlignment="Center"
-                           Margin="10,0,0,0"/>
+                <TextBox x:Name="HotkeyTextBox" 
+                        Width="200" 
+                        IsReadOnly="True"
+                        Background="{DynamicResource SecondaryAccentBrush}"
+                        Foreground="Black" 
+                        BorderThickness="0" 
+                        Padding="4"
+                        PreviewKeyDown="HotkeyTextBox_PreviewKeyDown"
+                        GotFocus="HotkeyTextBox_GotFocus"
+                        Text="Click to record..."/>
+                <Button x:Name="ClearHotkeyButton" 
+                        Content="Clear" Width="60" Margin="10,0,0,0"
+                        Style="{StaticResource ActionButtonStyle}" 
+                        Click="ClearHotkey_Click"/>
             </StackPanel>
         </StackPanel>
 
-        <Grid Grid.Row="5"/>
+        <!-- Window Size -->
+        <StackPanel Grid.Row="4" Margin="0,0,0,15">
+            <TextBlock Text="Window Size:" 
+                Foreground="{DynamicResource PrimaryForegroundBrush}" 
+                Margin="0,0,0,5"/>
+            <StackPanel Orientation="Horizontal">
+                <Button x:Name="SaveWindowSizeButton" 
+                        Content="Save Current Size" 
+                        Width="140"
+                        Padding="8,4"
+                        Style="{StaticResource ActionButtonStyle}"
+                        Click="SaveWindowSize_Click"/>
+                <Button x:Name="ResetWindowSizeButton"
+                        Content="Reset to Default"
+                        Width="130"
+                        Padding="8,4"
+                        Style="{StaticResource ActionButtonStyle}"
+                        Click="ResetWindowSize_Click"
+                        Margin="10,0,0,0"/>
+                <TextBlock x:Name="WindowSizeText" 
+                    Foreground="{DynamicResource PrimaryForegroundBrush}"
+                    VerticalAlignment="Center"
+                    Margin="10,0,0,0"/>
+            </StackPanel>
+        </StackPanel>
 
-        <StackPanel Grid.Row="6" Orientation="Horizontal" HorizontalAlignment="Right">
+        <Grid Grid.Row="6"/>
+
+        <StackPanel Grid.Row="7" Orientation="Horizontal" HorizontalAlignment="Right">
             <Button Content="Save" Width="70" Style="{StaticResource ActionButtonStyle}" Click="Save_Click" Margin="0,0,10,0"/>
             <Button Content="Cancel" Width="70" Style="{StaticResource ActionButtonStyle}" Click="Cancel_Click"/>
         </StackPanel>

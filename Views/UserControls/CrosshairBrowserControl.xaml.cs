@@ -35,7 +35,7 @@ namespace plomfX.Views.UserControls
             foreach (var cat in categories)
             {
                 _categoryImages[cat.Name] = cat.ImagePaths;
-                var tabItem = new TabItem { Header = cat.Name.ToUpper(), Tag = cat.Name };
+                var tabItem = new TabItem { Header = cat.Name, Tag = cat.Name };
                 tabItem.Content = new ScrollViewer
                 {
                     VerticalScrollBarVisibility = ScrollBarVisibility.Auto,

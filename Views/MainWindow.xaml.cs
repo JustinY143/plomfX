@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -8,6 +6,7 @@ using plomfX.Services;
 using plomfX.Views.UserControls;
 using WpfColor = System.Windows.Media.Color;
 using WinForms = System.Windows.Forms;
+using System.Windows.Input;
 
 namespace plomfX.Views
 {
@@ -16,7 +15,6 @@ namespace plomfX.Views
         private WinForms.NotifyIcon? _notifyIcon;
         private OverlayWindow _overlayWindow;
         private AppSettings _settings;
-
         private string _currentCrosshairPath = string.Empty;
         private double _currentScaleX = 1.0;
         private double _currentScaleY = 1.0;
@@ -34,6 +32,18 @@ namespace plomfX.Views
             InitializeComponent();
             InitializeTrayIcon();
             _settings = SettingsService.Load();
+
+            // Initialize global hotkey service (must be after window handle is created)
+            Loaded += (s, e) =>
+            {
+                GlobalHotkeyService.Initialize(this);
+                ApplyHotkeyFromSettings();
+
+                // Bring window to front on launch
+                Activate();
+                Topmost = true;
+                Topmost = false;
+            };
 
             // Apply saved window size
             Width = _settings.MainWindowWidth;
@@ -153,6 +163,32 @@ namespace plomfX.Views
             _notifyIcon!.Visible = false;
         }
 
+        private void ApplyHotkeyFromSettings()
+        {
+            var settings = SettingsService.Load();
+            GlobalHotkeyService.Unregister();
+
+            if (settings.HotkeyEnabled && settings.HotkeyKey != 0)
+            {
+                var mods = (ModifierKeys)settings.HotkeyModifiers;
+                var key = KeyInterop.KeyFromVirtualKey(settings.HotkeyKey);
+                GlobalHotkeyService.Register(mods, key, ToggleOverlayFromHotkey);
+            }
+        }
+
+        private void ToggleOverlayFromHotkey()
+        {
+            Dispatcher.Invoke(() =>
+            {
+                ActionMenuControl.IsOverlayEnabled = !ActionMenuControl.IsOverlayEnabled;
+            });
+        }
+
+        public void RefreshHotkey()
+        {
+            ApplyHotkeyFromSettings();
+        }
+
         protected override void OnStateChanged(EventArgs e)
         {
             if (WindowState == WindowState.Minimized)
@@ -189,6 +225,18 @@ namespace plomfX.Views
                 ThemeManager.ApplyTheme(selectedTheme);
                 _settings.ThemeName = selectedTheme.Name;
                 SettingsService.Save(_settings);
+            }
+        }
+
+        private void ThemeComboBox_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (!ThemeComboBox.IsDropDownOpen &&
+                (e.Key == System.Windows.Input.Key.Up || 
+                e.Key == System.Windows.Input.Key.Down || 
+                e.Key == System.Windows.Input.Key.Left || 
+                e.Key == System.Windows.Input.Key.Right))
+            {
+                e.Handled = true;
             }
         }
 
@@ -260,7 +308,7 @@ namespace plomfX.Views
         {
             if (string.IsNullOrEmpty(_currentCrosshairPath))
             {
-                WinForms.MessageBox.Show("No crosshair selected to save.", "Save Crosshair");
+                ActionMenuControl.ShowStatus("No crosshair selected");
                 return;
             }
 
@@ -272,7 +320,8 @@ namespace plomfX.Views
             _settings.DefaultOffsetY = _currentOffsetY;
             _settings.DefaultTint = _currentTint;
             SettingsService.Save(_settings);
-            WinForms.MessageBox.Show("Current crosshair saved as default.", "Save Crosshair");
+
+            ActionMenuControl.ShowStatus("Crosshair saved");
         }
 
         // ---------- Customization Events ----------

@@ -14,13 +14,14 @@
             Padding="10">
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>  <!-- ACTIONS header -->
+                <RowDefinition Height="*"/>     <!-- Button stack -->
+                <RowDefinition Height="Auto"/>  <!-- Status text -->
+                <RowDefinition Height="Auto"/>  <!-- Toggle -->
             </Grid.RowDefinitions>
             
             <TextBlock Text="ACTIONS" 
-                    Foreground="{DynamicResource SecondaryAccentBrush}"
+                    Foreground="{DynamicResource PrimaryForegroundBrush}"
                     FontSize="10" 
                     Margin="0,0,0,10"
                     FontWeight="SemiBold"/>
@@ -53,9 +54,21 @@
                         Style="{StaticResource ActionButtonStyle}"/>
             </StackPanel>
             
+            <!-- Status message -->
+            <TextBlock x:Name="StatusText" 
+                    Grid.Row="2"
+                    Text=""
+                    Foreground="{DynamicResource PrimaryForegroundBrush}"
+                    FontSize="14"
+                    FontWeight="Bold"
+                    TextWrapping="Wrap"
+                    TextAlignment="Center"
+                    Margin="0,8,0,8"
+                    Opacity="0"/>
+                    
             <!-- Large Enable/Disable toggle at bottom -->
             <ToggleButton x:Name="EnableToggleButton" 
-                        Grid.Row="2"
+                        Grid.Row="3"
                         IsChecked="False"
                         Padding="10,12"
                         Foreground="{DynamicResource SecondaryForegroundBrush}"
@@ -63,6 +76,7 @@
                         FontWeight="Bold"
                         Cursor="Hand"
                         HorizontalContentAlignment="Center">
+
                 <ToggleButton.Style>
                     <Style TargetType="ToggleButton">
                         <Setter Property="Background" Value="{DynamicResource SecondaryAccentBrush}"/>
