@@ -10,6 +10,7 @@ A lightweight, external crosshair overlay for Windows. This only works if you pl
 - Multi-monitor support
 - Custom themes via `themes.txt`
 - System tray with enable/disable toggle
+- Set a keybind to toggle the crosshair on and off
 - Save your default crosshair to run on startup
 
 ## Usage
