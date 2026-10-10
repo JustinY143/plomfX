@@ -7,11 +7,32 @@ using plomfX.Views.UserControls;
 using WpfColor = System.Windows.Media.Color;
 using WinForms = System.Windows.Forms;
 using System.Windows.Input;
+using System.Runtime.InteropServices;
 
 namespace plomfX.Views
 {
     public partial class MainWindow : Window
     {
+        [DllImport("user32.dll")]
+        private static extern bool SetForegroundWindow(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetForegroundWindow();
+
+        [DllImport("user32.dll")]
+        private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+
+        [DllImport("kernel32.dll")]
+        private static extern uint GetCurrentThreadId();
+
+        [DllImport("user32.dll")]
+        private static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach);
+
+        private const int SW_RESTORE = 9;
+        private const int SW_SHOW = 5;
         private WinForms.NotifyIcon? _notifyIcon;
         private OverlayWindow _overlayWindow;
         private AppSettings _settings;
@@ -158,9 +179,51 @@ namespace plomfX.Views
 
         private void ShowWindow()
         {
+            // Temporarily hide the overlay so the main window can come to front
+            bool overlayWasVisible = _overlayWindow.IsVisible;
+            if (overlayWasVisible)
+                _overlayWindow.Hide();
+
+            // Restore the main window
             this.Show();
-            this.WindowState = WindowState.Normal;
+            if (WindowState == WindowState.Minimized)
+                WindowState = WindowState.Normal;
+
+            var hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
+            ShowWindow(hwnd, SW_RESTORE);
+            ForceForeground(hwnd);
+
             _notifyIcon!.Visible = false;
+            Activate();
+            Focus();
+
+            // Re-show the overlay after the main window settles
+            if (overlayWasVisible)
+            {
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    _overlayWindow.Show();
+                }), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+            }
+        }
+
+        private void ForceForeground(IntPtr hwnd)
+        {
+            IntPtr foregroundWnd = GetForegroundWindow();
+            uint foregroundThread = GetWindowThreadProcessId(foregroundWnd, out _);
+            uint currentThread = GetCurrentThreadId();
+
+            if (foregroundThread != currentThread)
+            {
+                // Attach to the foreground thread temporarily so we're allowed to steal focus
+                AttachThreadInput(foregroundThread, currentThread, true);
+                SetForegroundWindow(hwnd);
+                AttachThreadInput(foregroundThread, currentThread, false);
+            }
+            else
+            {
+                SetForegroundWindow(hwnd);
+            }
         }
 
         private void ApplyHotkeyFromSettings()
