@@ -1,6 +1,6 @@
 # plomfX
 
-A lightweight, external crosshair overlay for Windows. This only works if you play on Windowed-Fullscreen (making it work for exclusive is too much work and anticheat scary).
+A lightweight, external crosshair overlay for Windows. **DOES NOT WORK ON EXCLUSIVE FULLSCREEN!** This only works if you play on Windowed-Fullscreen (making it work for exclusive is too much work and anticheat scary).
 
 ## Features
 
